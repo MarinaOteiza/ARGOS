@@ -1,0 +1,9 @@
+transformers
+torch
+accelerate
+bitsandbytes
+sentence-transformers
+numpy
+reportlab
+fpdf2
+requests
