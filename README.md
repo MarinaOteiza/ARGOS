@@ -6,14 +6,9 @@
 
 ---
 
-> **Repository notice**
-> This is a partial public mirror of a private project. The full codebase is not publicly available for ethical reasons — the toolkit performs active exploitation and vulnerability scanning. The files present here are intended to illustrate the architecture and technical approach only. They do not constitute a complete or functional system.
-
----
-
 ## Motivation
 
-Existing LLM-assisted penetration testing tools (PentestGPT, PentestAgent, CAI) rely on commercial API endpoints. This means target hostnames, open ports, service banners, and CVE findings are transmitted to third-party infrastructure on every query, and recurring API costs scale with engagement volume.
+Existing LLM-assisted penetration testing tools rely on commercial API endpoints. This means target hostnames, open ports, service banners, and CVE findings are transmitted to third-party infrastructure on every query, and recurring API costs scale with engagement volume.
 
 ARGOS runs entirely on local hardware. The LLM, the embedding model, and all tool execution happen on the operator's machine. No target data leaves the network perimeter at any point.
 
@@ -37,19 +32,19 @@ ARGOS is structured in three layers:
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  LLM Planner  (Qwen3-14B via HuggingFace transformers)  │
-│  Decides what to do: which scripts, modules, payloads    │
+│  Decides what to do: which scripts, modules, payloads   │
 └────────────────────────┬────────────────────────────────┘
                          │ structured JSON plan
-┌────────────────────────▼────────────────────────────────┐
-│  RAG Layer  (BAAI/bge-small-en-v1.5, sentence-transformers) │
-│  Retrieves relevant nmap/MSF documentation; grounds the  │
-│  LLM prompt in factual tool reference material           │
-└────────────────────────┬────────────────────────────────┘
+┌────────────────────────▼───────────────────────────────────┐
+│  RAG Layer (BAAI/bge-small-en-v1.5, sentence-transformers) │
+│  Retrieves relevant nmap/MSF documentation; grounds the    │
+│  LLM prompt in factual tool reference material             │
+└────────────────────────┬───────────────────────────────────┘
                          │ validated commands
 ┌────────────────────────▼────────────────────────────────┐
-│  MCP Execution Servers                                   │
+│  MCP Execution Servers                                  │
 │  nmap · ffuf · msfconsole · NVD API · debsecan · lynis  │
-│  Each server validates, sanitises, and executes one tool │
+│  Each server validates, sanitises, and executes one tool│
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -106,4 +101,4 @@ All inference is local. The LLM is loaded once at startup with `device_map="auto
 
 ## Academic context
 
-ARGOS was developed as a final-degree project (TFG) and is not intended for production use.
+ARGOS was developed as a final-degree project and is not intended for production use.
