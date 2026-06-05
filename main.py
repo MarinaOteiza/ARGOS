@@ -142,6 +142,12 @@ def run_debsecan_mode(args):
         subprocess.run(["sudo", "apt", "install", "-y", "debsecan"])
 
     try:
+        _base = os.path.dirname(os.path.abspath(__file__))
+        _mcp = os.path.join(_base, "MCP")
+        if not os.path.isdir(_mcp):
+            _mcp = os.path.join(_base, "RAG", "RAG", "MCP")
+        if _mcp not in sys.path:
+            sys.path.insert(0, _mcp)
         from debsecan_mcp import run as debsecan_run
     except ImportError as e:
         print(f"{RED}[ERROR] Error importando debsecan_mcp: {e}{RESET}")
@@ -177,6 +183,12 @@ def run_lynis_mode(args):
         subprocess.run(["sudo", "apt", "install", "-y", "lynis"])
 
     try:
+        _base = os.path.dirname(os.path.abspath(__file__))
+        _mcp = os.path.join(_base, "MCP")
+        if not os.path.isdir(_mcp):
+            _mcp = os.path.join(_base, "RAG", "RAG", "MCP")
+        if _mcp not in sys.path:
+            sys.path.insert(0, _mcp)
         from lynis_mcp import run as lynis_run
     except ImportError as e:
         print(f"{RED}[ERROR] Error importando lynis_mcp: {e}{RESET}")
@@ -201,7 +213,12 @@ def run_cve_query_mode(args):
     print(f"{CYAN}{'═'*60}{RESET}\n")
 
     try:
-        sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "MCP"))
+        _base = os.path.dirname(os.path.abspath(__file__))
+        _mcp = os.path.join(_base, "MCP")
+        if not os.path.isdir(_mcp):
+            _mcp = os.path.join(_base, "RAG", "RAG", "MCP")
+        if _mcp not in sys.path:
+            sys.path.insert(0, _mcp)
         from cve_query import run as cve_run
     except ImportError as e:
         print(f"{RED}[ERROR] Error importando cve_query: {e}{RESET}")

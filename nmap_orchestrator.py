@@ -36,6 +36,14 @@ except ImportError:
 def check_tool(tool: str) -> bool:
     return subprocess.run(["which", tool], capture_output=True).returncode == 0
 
+_here = os.path.dirname(os.path.abspath(__file__))
+for _candidate in [
+    os.path.join(_here, "RAG", "RAG"),          # running from ARGOS/
+    _here,                                        # running from ARGOS/RAG/RAG/
+]:
+    if os.path.isdir(os.path.join(_candidate, "MCP")) and _candidate not in sys.path:
+        sys.path.insert(0, _candidate)
+
 try:
     from nmap_planner         import NmapPlanner, validate_scripts, _detect_service_category
     from MCP.nmap_mcp_server  import MCPServer

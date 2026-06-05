@@ -1,0 +1,362 @@
+PENTEST LOG — 10.129.229.26
+Date: 2026-06-05T08:27:51.409297
+============================================================
+
+[Step 1] Full TCP SYN scan (all 65535 ports)
+  Cmd: nmap -Pn -sS -p- --min-rate 1000 --max-retries 2 10.129.229.26
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 08:29 +0200
+Nmap scan report for 10.129.229.26
+Host is up (0.041s latency).
+Not shown: 65531 closed tcp ports (reset)
+PORT      STATE    SERVICE
+22/tcp    open     ssh
+80/tcp    filtered http
+8338/tcp  filtered unknown
+55555/tcp open     unknown
+
+Nmap done: 1 IP address (1 host up) scanned in 14.72 seconds
+
+----------------------------------------
+[Step 2] Version + OS detection on 22,55555
+  Cmd: nmap -Pn -sV -O --version-intensity 5 -sC --script-timeout 60s -p 22,55555 -oX /home/marina/Desktop/pentestM/RAG/outputs/nmap_sV_10_129_229_26.xml 10.129.229.26
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 08:30 +0200
+Nmap scan report for 10.129.229.26
+Host is up (0.042s latency).
+
+PORT      STATE SERVICE VERSION
+22/tcp    open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.7 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   3072 aa:88:67:d7:13:3d:08:3a:8a:ce:9d:c4:dd:f3:e1:ed (RSA)
+|   256 ec:2e:b1:05:87:2a:0c:7d:b1:49:87:64:95:dc:8a:21 (ECDSA)
+|_  256 b3:0c:47:fb:a2:f2:12:cc:ce:0b:58:82:0e:50:43:36 (ED25519)
+55555/tcp open  http    Golang net/http server
+| http-title: Request Baskets
+|_Requested resource was /web
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port
+Device type: general purpose
+Running: Linux 4.X|5.X
+OS CPE: cpe:/o:linux:linux_kernel:4 cpe:/o:linux:linux_kernel:5
+OS details: Linux 4.15 - 5.19, Linux 5.0 - 5.14
+Network Distance: 2 hops
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 30.81 seconds
+
+----------------------------------------
+[Step 3] SSH Authentication Methods
+  Cmd: nmap -Pn -sV --script ssh-auth-methods -p 22 10.129.229.26 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 08:31 +0200
+Nmap scan report for 10.129.229.26
+Host is up (0.041s latency).
+
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.7 (Ubuntu Linux; protocol 2.0)
+| ssh-auth-methods: 
+|   Supported authentication methods: 
+|     publickey
+|_    password
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 1.16 seconds
+
+----------------------------------------
+[Step 4] Check for Shellshock Vulnerability
+  Cmd: nmap -Pn -sV --script http-shellshock -p 55555 10.129.229.26 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 08:31 +0200
+Nmap scan report for 10.129.229.26
+Host is up (0.041s latency).
+
+PORT      STATE SERVICE VERSION
+55555/tcp open  http    Golang net/http server
+| fingerprint-strings: 
+|   FourOhFourRequest: 
+|     HTTP/1.0 400 Bad Request
+|     Content-Type: text/plain; charset=utf-8
+|     X-Content-Type-Options: nosniff
+|     Date: Fri, 05 Jun 2026 06:32:13 GMT
+|     Content-Length: 75
+|     invalid basket name; the name does not match pattern: ^[wd-_\.]{1,250}$
+|   GenericLines, Help, LPDString, RTSPRequest, SIPOptions, SSLSessionReq, Socks5: 
+|     HTTP/1.1 400 Bad Request
+|     Content-Type: text/plain; charset=utf-8
+|     Connection: close
+|     Request
+|   GetRequest: 
+|     HTTP/1.0 302 Found
+|     Content-Type: text/html; charset=utf-8
+|     Location: /web
+|     Date: Fri, 05 Jun 2026 06:31:57 GMT
+|     Content-Length: 27
+|     href="/web">Found</a>.
+|   HTTPOptions: 
+|     HTTP/1.0 200 OK
+|     Allow: GET, OPTIONS
+|     Date: Fri, 05 Jun 2026 06:31:58 GMT
+|     Content-Length: 0
+|   OfficeScan: 
+|     HTTP/1.1 400 Bad Request: missing required Host header
+|     Content-Type: text/plain; charset=utf-8
+|     Connection: close
+|_    Request: missing required Host header
+1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
+SF-Port55555-TCP:V=7.99%I=7%D=6/5%Time=6A226D5D%P=x86_64-pc-linux-gnu%r(Ge
+SF:tRequest,A2,"HTTP/1\.0\x20302\x20Found\r\nContent-Type:\x20text/html;\x
+SF:20charset=utf-8\r\nLocation:\x20/web\r\nDate:\x20Fri,\x2005\x20Jun\x202
+SF:026\x2006:31:57\x20GMT\r\nContent-Length:\x2027\r\n\r\n<a\x20href=\"/we
+SF:b\">Found</a>\.\n\n")%r(GenericLines,67,"HTTP/1\.1\x20400\x20Bad\x20Req
+SF:uest\r\nContent-Type:\x20text/plain;\x20charset=utf-8\r\nConnection:\x2
+SF:0close\r\n\r\n400\x20Bad\x20Request")%r(HTTPOptions,60,"HTTP/1\.0\x2020
+SF:0\x20OK\r\nAllow:\x20GET,\x20OPTIONS\r\nDate:\x20Fri,\
+----------------------------------------
+[Step 5] Enumerate Web Application on Port 55555
+  Cmd: nmap -Pn -sV --script http-enum -p 55555 10.129.229.26 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 08:32 +0200
+Nmap scan report for 10.129.229.26
+Host is up (0.042s latency).
+
+PORT      STATE SERVICE VERSION
+55555/tcp open  http    Golang net/http server
+| fingerprint-strings: 
+|   FourOhFourRequest: 
+|     HTTP/1.0 400 Bad Request
+|     Content-Type: text/plain; charset=utf-8
+|     X-Content-Type-Options: nosniff
+|     Date: Fri, 05 Jun 2026 06:33:07 GMT
+|     Content-Length: 75
+|     invalid basket name; the name does not match pattern: ^[wd-_\.]{1,250}$
+|   GenericLines, Help, LPDString, RTSPRequest, SIPOptions, SSLSessionReq, Socks5: 
+|     HTTP/1.1 400 Bad Request
+|     Content-Type: text/plain; charset=utf-8
+|     Connection: close
+|     Request
+|   GetRequest: 
+|     HTTP/1.0 302 Found
+|     Content-Type: text/html; charset=utf-8
+|     Location: /web
+|     Date: Fri, 05 Jun 2026 06:32:52 GMT
+|     Content-Length: 27
+|     href="/web">Found</a>.
+|   HTTPOptions: 
+|     HTTP/1.0 200 OK
+|     Allow: GET, OPTIONS
+|     Date: Fri, 05 Jun 2026 06:32:52 GMT
+|     Content-Length: 0
+|   OfficeScan: 
+|     HTTP/1.1 400 Bad Request: missing required Host header
+|     Content-Type: text/plain; charset=utf-8
+|     Connection: close
+|_    Request: missing required Host header
+1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
+SF-Port55555-TCP:V=7.99%I=7%D=6/5%Time=6A226D93%P=x86_64-pc-linux-gnu%r(Ge
+SF:tRequest,A2,"HTTP/1\.0\x20302\x20Found\r\nContent-Type:\x20text/html;\x
+SF:20charset=utf-8\r\nLocation:\x20/web\r\nDate:\x20Fri,\x2005\x20Jun\x202
+SF:026\x2006:32:52\x20GMT\r\nContent-Length:\x2027\r\n\r\n<a\x20href=\"/we
+SF:b\">Found</a>\.\n\n")%r(GenericLines,67,"HTTP/1\.1\x20400\x20Bad\x20Req
+SF:uest\r\nContent-Type:\x20text/plain;\x20charset=utf-8\r\nConnection:\x2
+SF:0close\r\n\r\n400\x20Bad\x20Request")%r(HTTPOptions,60,"HTTP/1\.0\x2020
+SF:0\x20OK\r\nAllow:\x20GET,\x20OPTIONS\r\nDate:\x20Fri,\
+----------------------------------------
+[Step 6] HTTP Methods Check
+  Cmd: nmap -Pn -sV --script http-methods -p 55555 10.129.229.26 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 08:34 +0200
+Nmap scan report for 10.129.229.26
+Host is up (0.041s latency).
+
+PORT      STATE SERVICE VERSION
+55555/tcp open  http    Golang net/http server
+| http-methods: 
+|_  Supported Methods: GET OPTIONS
+| fingerprint-strings: 
+|   FourOhFourRequest: 
+|     HTTP/1.0 400 Bad Request
+|     Content-Type: text/plain; charset=utf-8
+|     X-Content-Type-Options: nosniff
+|     Date: Fri, 05 Jun 2026 06:34:56 GMT
+|     Content-Length: 75
+|     invalid basket name; the name does not match pattern: ^[wd-_\.]{1,250}$
+|   GenericLines, Help, LPDString, RTSPRequest, SIPOptions, SSLSessionReq, Socks5: 
+|     HTTP/1.1 400 Bad Request
+|     Content-Type: text/plain; charset=utf-8
+|     Connection: close
+|     Request
+|   GetRequest: 
+|     HTTP/1.0 302 Found
+|     Content-Type: text/html; charset=utf-8
+|     Location: /web
+|     Date: Fri, 05 Jun 2026 06:34:40 GMT
+|     Content-Length: 27
+|     href="/web">Found</a>.
+|   HTTPOptions: 
+|     HTTP/1.0 200 OK
+|     Allow: GET, OPTIONS
+|     Date: Fri, 05 Jun 2026 06:34:41 GMT
+|     Content-Length: 0
+|   OfficeScan: 
+|     HTTP/1.1 400 Bad Request: missing required Host header
+|     Content-Type: text/plain; charset=utf-8
+|     Connection: close
+|_    Request: missing required Host header
+1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
+SF-Port55555-TCP:V=7.99%I=7%D=6/5%Time=6A226E00%P=x86_64-pc-linux-gnu%r(Ge
+SF:tRequest,A2,"HTTP/1\.0\x20302\x20Found\r\nContent-Type:\x20text/html;\x
+SF:20charset=utf-8\r\nLocation:\x20/web\r\nDate:\x20Fri,\x2005\x20Jun\x202
+SF:026\x2006:34:40\x20GMT\r\nContent-Length:\x2027\r\n\r\n<a\x20href=\"/we
+SF:b\">Found</a>\.\n\n")%r(GenericLines,67,"HTTP/1\.1\x20400\x20Bad\x20Req
+SF:uest\r\nContent-Type:\x20text/plain;\x20charset=utf-8\r\nConnection:\x2
+SF:0close\r\n\r\n400\x20Bad\x20Request")%r(HTTPOptions,60,"HTTP/1\.0\x2020
+SF:0\
+----------------------------------------
+[Step 7] ACK scan — firewall detection
+  Cmd: nmap -Pn -sA -p 22,55555 10.129.229.26
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 08:35 +0200
+Nmap scan report for 10.129.229.26
+Host is up (0.042s latency).
+
+PORT      STATE      SERVICE
+22/tcp    unfiltered ssh
+55555/tcp unfiltered unknown
+
+Nmap done: 1 IP address (1 host up) scanned in 0.63 seconds
+
+----------------------------------------
+[Step 8] UDP scan — top 100 ports by frequency
+  Cmd: nmap -Pn -sU --top-ports 100 --open --max-retries 1 10.129.229.26
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 08:35 +0200
+Warning: 10.129.229.26 giving up on port because retransmission cap hit (1).
+Nmap scan report for 10.129.229.26
+Host is up (0.042s latency).
+All 100 scanned ports on 10.129.229.26 are in ignored states.
+Not shown: 93 open|filtered udp ports (no-response), 7 closed udp ports (port-unreach)
+
+Nmap done: 1 IP address (1 host up) scanned in 4.10 seconds
+
+----------------------------------------
+[Step 9] UDP scan — exploit-focused service ports
+  Cmd: nmap -Pn -sU -p 53,67,69,111,123,137,138,161,162,500,623,1434,1900,4500,5353,11211,17185 --open --max-retries 1 10.129.229.26
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 08:36 +0200
+Warning: 10.129.229.26 giving up on port because retransmission cap hit (1).
+Nmap scan report for 10.129.229.26
+Host is up (0.041s latency).
+Not shown: 4 closed udp ports (port-unreach)
+PORT      STATE         SERVICE
+67/udp    open|filtered dhcps
+69/udp    open|filtered tftp
+111/udp   open|filtered rpcbind
+123/udp   open|filtered ntp
+137/udp   open|filtered netbios-ns
+138/udp   open|filtered netbios-dgm
+162/udp   open|filtered snmptrap
+623/udp   open|filtered asf-rmcp
+1434/udp  open|filtered ms-sql-m
+1900/udp  open|filtered upnp
+5353/udp  open|filtered zeroconf
+11211/udp open|filtered memcache
+17185/udp open|filtered wdbrpc
+
+Nmap done: 1 IP address (1 host up) scanned in 2.16 seconds
+
+----------------------------------------
+[Step 10] ffuf — http://10.129.229.26:55555
+  Cmd: ffuf -u http://10.129.229.26:55555/FUZZ -w /usr/share/dirb/wordlists/common.txt -t 40 -v -timeout 10 -e php,html,txt,js,json,bak,old,zip -o /tmp/ffuf_output_1780641379.json -of json -fc 404 -fs 75
+  OK: True
+  Out:
+[302] http://10.129.229.26:55555/
+[200] http://10.129.229.26:55555/web
+----------------------------------------
+[Step 11] ffuf vhosts — FUZZ.10.129.229.26
+  Cmd: ffuf -u http://10.129.229.26:55555 -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -t 40 -H 'Host: FUZZ.10.129.229.26' -o /tmp/ffuf_vhost_55555_1780641423.json -of json -v -ac
+  OK: True
+  Out:
+
+----------------------------------------
+[Step 12] MSF exploitation phase
+  Cmd: msfconsole (multiple modules)
+  OK: True
+  Out:
+0 modules executed
+----------------------------------------
+[Step 12] Searchsploit + credential phase
+  Cmd: searchsploit / paramiko / ftplib
+  OK: False
+  Out:
+1 exploits tried, 0 shells, 0 creds
+----------------------------------------
+
+============================================================
+EXECUTIVE REPORT:
+## Attack Surface Summary  
+The attack surface is **HIGH** due to the presence of a Golang net/http server on port 55555, which may be a custom application with potential vulnerabilities. The server returns a 302 redirect to `/web`, indicating a possible web interface that could be exploited if misconfigured or vulnerable. Additionally, OpenSSH 8.2p1 is running on port 22, supporting both password and public key authentication, which increases the risk of brute-force or credential-based attacks.
+
+---
+
+## Detected Services and Versions  
+- **TCP 22**: OpenSSH 8.2p1 Ubuntu 4ubuntu0.7 (Ubuntu Linux; protocol 2.0)  
+- **TCP 55555**: Golang net/http server  
+
+---
+
+## Key Findings  
+- A Golang net/http server is running on port 55555, which may be a custom application.  
+- The server returns a 302 redirect to `/web` when a GET request is made, suggesting a potential web interface.  
+- The server enforces a specific pattern for a 'basket name' in some requests, which could be a custom validation rule for a specific feature or API endpoint.  
+- OpenSSH 8.2p1 supports both public key and password authentication methods.  
+- No known backdoors or RCE vulnerabilities were explicitly identified in the provided data.  
+
+---
+
+## Recommended Next Steps  
+1. **Investigate the Golang net/http server on port 55555**:  
+   - Use tools like `nuclei` or `gobuster` to scan for common vulnerabilities or misconfigurations in the web application.  
+   - Example command:  
+     ```bash
+     gobuster dir -u http://10.129.229.26:55555 -w /usr/share/wordlists/dirb/common.txt
+     ```
+
+2. **Check for known vulnerabilities in OpenSSH 8.2p1**:  
+   - Verify if the version is affected by any known vulnerabilities using CVE databases.  
+   - Example command:  
+     ```bash
+     cve-search OpenSSH 8.2p1
+     ```
+
+3. **Test for potential RCE or misconfigurations in the Golang server**:  
+   - Use Metasploit to test for known vulnerabilities in Golang-based applications.  
+   - Example command:  
+     ```bash
+     msfconsole
+     use exploit/multi/http/golang_gin_rce
+     set RHOSTS 10.129.229.26
+     set LHOST <your_ip>
+     run
+     ```
+
+4. **Assess the web interface at `/web`**:  
+   - Use `curl` or `wget` to inspect the content and behavior of the `/web` endpoint.  
+   - Example command:  
+     ```bash
+     curl -v http://10.129.229.26:55555/web
+     ```
+
+5. **Implement strong authentication and rate-limiting for SSH**:  
+   - Disable password authentication and enforce public key authentication.  
+   - Use `fail2ban` or similar tools to prevent brute-force attacks.

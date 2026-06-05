@@ -1,0 +1,306 @@
+PENTEST LOG — 10.129.10.68
+Date: 2026-06-05T08:53:49.455645
+============================================================
+
+[Step 1] Full TCP SYN scan (all 65535 ports)
+  Cmd: nmap -Pn -sS -p- --min-rate 1000 --max-retries 2 10.129.10.68
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 08:56 +0200
+Nmap scan report for 10.129.10.68
+Host is up (0.042s latency).
+Not shown: 65533 closed tcp ports (reset)
+PORT     STATE SERVICE
+80/tcp   open  http
+2222/tcp open  EtherNetIP-1
+
+Nmap done: 1 IP address (1 host up) scanned in 20.07 seconds
+
+----------------------------------------
+[Step 2] Version + OS detection on 80,2222
+  Cmd: nmap -Pn -sV -O --version-intensity 5 -sC --script-timeout 60s -p 80,2222 -oX /home/marina/Desktop/pentestM/RAG/outputs/nmap_sV_10_129_10_68.xml 10.129.10.68
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 08:56 +0200
+Nmap scan report for 10.129.10.68
+Host is up (0.041s latency).
+
+PORT     STATE SERVICE VERSION
+80/tcp   open  http    Apache httpd 2.4.18 ((Ubuntu))
+|_http-title: Site doesn't have a title (text/html).
+2222/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.2 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 c4:f8:ad:e8:f8:04:77:de:cf:15:0d:63:0a:18:7e:49 (RSA)
+|   256 22:8f:b1:97:bf:0f:17:08:fc:7e:2c:8f:e9:77:3a:48 (ECDSA)
+|_  256 e6:ac:27:a3:b5:a9:f1:12:3c:34:a5:5d:5b:eb:3d:e9 (ED25519)
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port
+Device type: general purpose
+Running: Linux 3.X|4.X
+OS CPE: cpe:/o:linux:linux_kernel:3 cpe:/o:linux:linux_kernel:4
+OS details: Linux 3.10 - 4.11, Linux 3.2 - 4.14
+Network Distance: 2 hops
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 9.76 seconds
+
+----------------------------------------
+[Step 3] Check for Shellshock vulnerability on Apache
+  Cmd: nmap -Pn -sV --script http-shellshock -p 80 10.129.10.68 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 08:57 +0200
+Nmap scan report for 10.129.10.68
+Host is up (0.041s latency).
+
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Apache httpd 2.4.18 ((Ubuntu))
+|_http-server-header: Apache/2.4.18 (Ubuntu)
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 7.25 seconds
+
+----------------------------------------
+[Step 4] Check SSH authentication methods
+  Cmd: nmap -Pn -sV --script ssh-auth-methods -p 2222 10.129.10.68 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 08:58 +0200
+Nmap scan report for 10.129.10.68
+Host is up (0.041s latency).
+
+PORT     STATE SERVICE VERSION
+2222/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.2 (Ubuntu Linux; protocol 2.0)
+| ssh-auth-methods: 
+|   Supported authentication methods: 
+|     publickey
+|_    password
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 1.12 seconds
+
+----------------------------------------
+[Step 5] Enumerate SSH algorithms
+  Cmd: nmap -Pn -sV --script ssh2-enum-algos -p 2222 10.129.10.68 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 08:58 +0200
+Nmap scan report for 10.129.10.68
+Host is up (0.042s latency).
+
+PORT     STATE SERVICE VERSION
+2222/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.2 (Ubuntu Linux; protocol 2.0)
+| ssh2-enum-algos: 
+|   kex_algorithms: (6)
+|       curve25519-sha256@libssh.org
+|       ecdh-sha2-nistp256
+|       ecdh-sha2-nistp384
+|       ecdh-sha2-nistp521
+|       diffie-hellman-group-exchange-sha256
+|       diffie-hellman-group14-sha1
+|   server_host_key_algorithms: (5)
+|       ssh-rsa
+|       rsa-sha2-512
+|       rsa-sha2-256
+|       ecdsa-sha2-nistp256
+|       ssh-ed25519
+|   encryption_algorithms: (6)
+|       chacha20-poly1305@openssh.com
+|       aes128-ctr
+|       aes192-ctr
+|       aes256-ctr
+|       aes128-gcm@openssh.com
+|       aes256-gcm@openssh.com
+|   mac_algorithms: (10)
+|       umac-64-etm@openssh.com
+|       umac-128-etm@openssh.com
+|       hmac-sha2-256-etm@openssh.com
+|       hmac-sha2-512-etm@openssh.com
+|       hmac-sha1-etm@openssh.com
+|       umac-64@openssh.com
+|       umac-128@openssh.com
+|       hmac-sha2-256
+|       hmac-sha2-512
+|       hmac-sha1
+|   compression_algorithms: (2)
+|       none
+|_      zlib@openssh.com
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 1.00 seconds
+
+----------------------------------------
+[Step 6] Check for SSH algorithm vulnerabilities
+  Cmd: nmap -Pn -sV --script ssh-hostkey -p 2222 10.129.10.68 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 08:59 +0200
+Nmap scan report for 10.129.10.68
+Host is up (0.043s latency).
+
+PORT     STATE SERVICE VERSION
+2222/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.2 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 c4:f8:ad:e8:f8:04:77:de:cf:15:0d:63:0a:18:7e:49 (RSA)
+|   256 22:8f:b1:97:bf:0f:17:08:fc:7e:2c:8f:e9:77:3a:48 (ECDSA)
+|_  256 e6:ac:27:a3:b5:a9:f1:12:3c:34:a5:5d:5b:eb:3d:e9 (ED25519)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 2.14 seconds
+
+----------------------------------------
+[Step 7] Check for Apache misconfigurations
+  Cmd: nmap -Pn -sV --script http-methods,http-enum -p 80 10.129.10.68 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 08:59 +0200
+Nmap scan report for 10.129.10.68
+Host is up (0.042s latency).
+
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Apache httpd 2.4.18 ((Ubuntu))
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-server-header: Apache/2.4.18 (Ubuntu)
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 11.23 seconds
+
+----------------------------------------
+[Step 8] ACK scan — firewall detection
+  Cmd: nmap -Pn -sA -p 80,2222 10.129.10.68
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 09:00 +0200
+Nmap scan report for 10.129.10.68
+Host is up (0.041s latency).
+
+PORT     STATE      SERVICE
+80/tcp   unfiltered http
+2222/tcp unfiltered EtherNetIP-1
+
+Nmap done: 1 IP address (1 host up) scanned in 0.60 seconds
+
+----------------------------------------
+[Step 9] UDP scan — top 100 ports by frequency
+  Cmd: nmap -Pn -sU --top-ports 100 --open --max-retries 1 10.129.10.68
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 09:00 +0200
+Warning: 10.129.10.68 giving up on port because retransmission cap hit (1).
+Nmap scan report for 10.129.10.68
+Host is up (0.042s latency).
+All 100 scanned ports on 10.129.10.68 are in ignored states.
+Not shown: 93 open|filtered udp ports (no-response), 7 closed udp ports (port-unreach)
+
+Nmap done: 1 IP address (1 host up) scanned in 4.07 seconds
+
+----------------------------------------
+[Step 10] UDP scan — exploit-focused service ports
+  Cmd: nmap -Pn -sU -p 53,67,69,111,123,137,138,161,162,500,623,1434,1900,4500,5353,11211,17185 --open --max-retries 1 10.129.10.68
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 09:01 +0200
+Warning: 10.129.10.68 giving up on port because retransmission cap hit (1).
+Nmap scan report for 10.129.10.68
+Host is up (0.042s latency).
+Not shown: 5 closed udp ports (port-unreach)
+PORT      STATE         SERVICE
+53/udp    open|filtered domain
+67/udp    open|filtered dhcps
+69/udp    open|filtered tftp
+111/udp   open|filtered rpcbind
+161/udp   open|filtered snmp
+162/udp   open|filtered snmptrap
+500/udp   open|filtered isakmp
+623/udp   open|filtered asf-rmcp
+1434/udp  open|filtered ms-sql-m
+4500/udp  open|filtered nat-t-ike
+5353/udp  open|filtered zeroconf
+11211/udp open|filtered memcache
+
+Nmap done: 1 IP address (1 host up) scanned in 1.89 seconds
+
+----------------------------------------
+[Step 11] ffuf — http://10.129.10.68
+  Cmd: ffuf -u http://10.129.10.68/FUZZ -w /usr/share/dirb/wordlists/common.txt -t 40 -v -timeout 10 -e php,html,txt,js,json,bak,old,zip -o /tmp/ffuf_output_1780642869.json -of json -fs 296,310
+  OK: True
+  Out:
+[200] http://10.129.10.68/
+[403] http://10.129.10.68/.hta
+[403] http://10.129.10.68/.htaphp
+[403] http://10.129.10.68/.htahtml
+[403] http://10.129.10.68/.htatxt
+[403] http://10.129.10.68/.htajs
+[403] http://10.129.10.68/.htajson
+[403] http://10.129.10.68/.htabak
+[403] http://10.129.10.68/.htaccessphp
+[403] http://10.129.10.68/.htaccesshtml
+----------------------------------------
+[Step 12] ffuf vhosts — FUZZ.10.129.10.68
+  Cmd: ffuf -u http://10.129.10.68 -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -t 40 -H 'Host: FUZZ.10.129.10.68' -o /tmp/ffuf_vhost_80_1780642914.json -of json -v -ac
+  OK: True
+  Out:
+
+----------------------------------------
+[Step 13] ffuf CGI — http://10.129.10.68/cgi-bin
+  Cmd: ffuf -u http://10.129.10.68/cgi-bin/FUZZ -w /usr/share/seclists/Discovery/Web-Content/LEGACY-SERVICES/CGIs/CGIs.txt -t 40 -v -timeout 10 -e .sh,.cgi,.pl,.py,.rb -o /tmp/ffuf_cgi_80_1780642925.json -of json -mc all -ac
+  OK: True
+  Out:
+
+----------------------------------------
+[Step 14] MSF exploitation phase
+  Cmd: msfconsole (multiple modules)
+  OK: True
+  Out:
+2 modules executed
+----------------------------------------
+[Step 14] Searchsploit + credential phase
+  Cmd: searchsploit / paramiko / ftplib
+  OK: False
+  Out:
+3 exploits tried, 0 shells, 0 creds
+----------------------------------------
+
+============================================================
+EXECUTIVE REPORT:
+## Attack Surface Summary  
+The attack surface is **HIGH** due to the presence of known vulnerabilities in the Apache httpd service (CVE-2014-6271) and the use of outdated and insecure algorithms in the SSH service. These vulnerabilities could allow remote code execution or unauthorized access if exploited.
+
+---
+
+## Detected Services and Versions  
+- **TCP 80**: Apache httpd 2.4.18 ((Ubuntu))  
+- **TCP 2222**: OpenSSH 7.2p2 Ubuntu 4ubuntu2.2 (Ubuntu Linux; protocol 2.0)  
+
+---
+
+## Key Findings  
+1. **Apache httpd 2.4.18** is known to be vulnerable to the **Shellshock vulnerability (CVE-2014-6271)** if misconfigured.  
+2. **SSH service** supports both password and publickey authentication methods.  
+3. **SSH service** uses outdated algorithms such as 'diffie-hellman-group14-sha1' and 'hmac-sha1', which are known to be vulnerable.  
+4. The **'ssh-rsa'** server host key algorithm is deprecated and should be replaced with more secure alternatives like **'ssh-ed25519'**.  
+5. Multiple HTTP responses with status code **[403]** indicate that the server is configured to block access to certain file types, but this does not eliminate the risk of exploitation if the Apache service is misconfigured.
+
+---
+
+## Recommended Next Steps  
+1. **Exploit Apache httpd Shellshock vulnerability (CVE-2014-6271)**:  
+   - Use Metasploit module: `exploit/multi/http/apache_mod_cgi_bash_env`  
+   - Command: `msfconsole -x "use exploit/multi/http/apache_mod_cgi_bash_env; set RHOSTS 10.129.10.68; exploit"`  
+   - Note: This exploit requires that the Apache server is configured to allow CGI execution and that the `mod_cgi` module is enabled.  
+
+2. **Audit SSH service configuration**:  
+   - Use `ssh -Q kex` and `ssh -Q cipher` to verify the algorithms being used.  
+   - Replace deprecated algorithms with more secure ones (e.g., `diffie-hellman-group18-sha1`, `hmac-sha2-256`, and `ssh-ed25519`).  
+
+3. **Upgrade Apache httpd and OpenSSH**:  
+   - Upgrade Apache httpd to a version that is no longer vulnerable to CVE-2014-6271.  
+   - Upgrade OpenSSH to a version that supports modern cryptographic algorithms and deprecates'ssh-rsa'.  
+
+4. **Verify and restrict access to sensitive files**:  
+   - Ensure that `.htaccess` and other sensitive files are not accessible via HTTP.  
+   - Use proper file permissions and server configurations to prevent directory traversal or misconfiguration-based attacks.

