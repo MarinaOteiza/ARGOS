@@ -2,7 +2,7 @@
   <img src="argos_logo.svg" alt="ARGOS" width="300"/>
 </p>
 
-<p align="center"><strong>LLM-orchestrated local penetration testing toolkit for automated vulnerability assessment.</strong></p>
+<p align="center"><strong> Automated Reconnaissance with Guided Offensive Scanning: LLM-orchestrated local penetration testing toolkit for automated vulnerability assessment.</strong></p>
 
 ---
 
